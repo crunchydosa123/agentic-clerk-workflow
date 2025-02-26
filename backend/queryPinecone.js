@@ -1,5 +1,5 @@
-import { index } from "./pinecone_functions";
-import { getEmbedding } from "./embeddingService";
+import { index } from "./pinecone_functions.js";
+import { getEmbedding } from "./embeddingService.js";
 
 const queryDocument = async(query) =>{
     const embedding = await getEmbedding(text);
