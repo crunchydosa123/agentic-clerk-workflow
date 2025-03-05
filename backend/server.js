@@ -4,22 +4,23 @@ import { queryDocument } from "./queryPinecone.js";
 import { extractText } from "./extractText.js";
 
 
-
-const upload = multer({ dest: "uploads/" });
 const app = express();
 app.use(express.json());
 
-app.post("/store", upload.single("file"), async (req, res) => {
-    const file = req.file;
+app.post("/store", async (req, res) => {
+    try{
+        const {id, embeddings } = req.body;
+        const storeResponse = await storeDocument(id, embeddings);
 
-    if (!file) return res.status(400).json({ error: "No file uploaded" });
-
-    const fileType = file.mimetype.includes("pdf") ? "pdf" : file.mimetype.includes("word") ? "docx" : text;
-
-    const text = await extractText(file.path, fileType);
-    await storeDocument(id, text);
-
-    res.json({message: "Document stored"});
+        if(storeResponse){
+            res.json({message: "Document stored"});
+        }else{
+            return res.status(500).json({error: "Failed to store document"});
+        }
+    }catch(error){
+        res.status(500).json({error: error});
+    }
+    
 });
 
 app.post("/query", async (req, res) => {
