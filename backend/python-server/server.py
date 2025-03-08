@@ -1,12 +1,20 @@
-import pymupdf
-from sentence_transformers import SentenceTransformer
 from flask import Flask, request, jsonify
 import os
+import uuid
+
+from helper_functions import insert_data, query_index, generate_embeddings, extract_text_from_pdf
+
 
 app = Flask(__name__)
 
 UPLOAD_FOLDER = "/uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+
+@app.route("/hello", methods=["GET"])
+def hello_api():
+    return jsonify({"message": "hello world!"})
+    
 
 @app.route("/get_embeddings", methods=["POST"])
 def upload_file():
@@ -25,19 +33,22 @@ def upload_file():
 
     return jsonify({"filename": file.filename, "embeddings": embeddings.tolist()})
 
+@app.route("/store_text", methods=["POST"])
+def extract_and_store_text():
+    data = request.get_json()
+    text  = data.get("text", "")
 
-def extract_text_from_pdf(pdf_path):
-    doc = pymupdf.open(pdf_path)
-    text = ""
-    for page in doc:
-        text += page.get_text() + "\n"
+    if not text.strip():
+        return jsonify({"error": "text required"}), 400
+
+    embeddings = generate_embeddings(text.strip())
     
-    return text.strip()
+    random_uuid = uuid.uuid4()
+    random_uuid = str(random_uuid)
+    insert_data(text.strip(), embeddings, random_uuid)
 
-def generate_embeddings(text):
-    model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
-    embeddings = model.encode(text)
-    return embeddings
+    return jsonify({"message": "stored successfully", "id": random_uuid, "text": text.strip()}), 200
+
 
 if __name__ == "__main__":
     app.run(debug=True)
