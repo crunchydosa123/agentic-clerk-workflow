@@ -5,5 +5,5 @@ services:
     ports:
       - "8000:8000"
     environment:
-      DATABASE_URL: postgresql://auth-db_owner:npg_yZwNv1aedpg4@ep-lingering-mud-a8a0comd-pooler.eastus2.azure.neon.tech/auth-db?sslmode=require
-      JWT_SECRET: vadapav123
+      DATABASE_URL: env.DATABASE_URL
+      JWT_SECRET: env.JWT_SECRET
