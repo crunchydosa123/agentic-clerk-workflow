@@ -1,0 +1,9 @@
+version: "3.8"
+services:
+  auth-service:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql://auth-db_owner:npg_yZwNv1aedpg4@ep-lingering-mud-a8a0comd-pooler.eastus2.azure.neon.tech/auth-db?sslmode=require
+      JWT_SECRET: vadapav123
